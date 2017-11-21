@@ -30,65 +30,55 @@ module.exports = function(app) {
         console.log(req.body);
         console.log(friendsData);
 
-        
+
 
         let curUserData = req.body
         var subDiffArr = [];
         var totalDiffArr = [];
-        
 
-	function getFriendMatch()	{
-        for (var i = 0; i < friendsData.length; i++) {
-            var friendsScores = friendsData[i].scores;
+        function getFriendMatch() {
+            for (var i = 0; i < friendsData.length; i++) {
+                var friendsScores = friendsData[i].scores;
 
-            for (var j = 0; j < friendsScores.length; j++) {
-                var subDiff = Math.abs(parseInt(friendsScores[j]) - parseInt(curUserData.scores[j]));
-                subDiffArr.push(subDiff);
-               
-            }
+                for (var j = 0; j < friendsScores.length; j++) {
+                    var subDiff = Math.abs(parseInt(friendsScores[j]) - parseInt(curUserData.scores[j]));
+                    subDiffArr.push(subDiff);
+                }
 
-            console.log(subDiffArr);
-            var totalDiff = subDiffArr.reduce((a, b) => a + b, 0);
-            subDiffArr = [];
-            friendsData[i].totalDiff = totalDiff;
-            totalDiffArr.push(totalDiff);
-            console.log(friendsData[i]);
+                console.log(subDiffArr);
+                var totalDiff = subDiffArr.reduce((a, b) => a + b, 0);
+                subDiffArr = [];
+                friendsData[i].totalDiff = totalDiff;
+                totalDiffArr.push(totalDiff);
+                console.log(friendsData[i]);
+            };
+            displayFriendMatch();
+
         };
-        displayFriendMatch();
+        Array.min = function(array) {
+            return Math.min.apply(Math, array);
+        };
 
-};
-        Array.min = function( array ){
-    		return Math.min.apply( Math, array );
-		};
+        function displayFriendMatch() {
+            for (var k = 0; k < friendsData.length; k++) {
+                var minimum = Array.min(totalDiffArr);
+                console.log(minimum);
+                if (parseInt(minimum) == parseInt(friendsData[k].totalDiff)) {
+                    res.json(friendsData[k]);
+                    friendsData.push(curUserData);
+                }
+            }
+			deleteDiffData();
+        }
 
-		
-function displayFriendMatch() {
-		for (var k = 0; k < friendsData.length; k++) {
-			var minimum = Array.min(totalDiffArr);
-			console.log(minimum);
-			if (parseInt(minimum) == parseInt(friendsData[k].totalDiff)) {
-				res.json(friendsData[k]);
-				friendsData.push(curUserData);
-			}
-
-		}
-
-deleteDiffData()
-}
-
-function deleteDiffData() {
-
-	for (var l = 0; l < friendsData.length; l++) {
-		delete friendsData[l].totalDiff;
-			subDiffArr = [];
-			totalDiffArr = [];
-	}
-	
-}
-
-getFriendMatch();
-
-
+        function deleteDiffData() {
+            for (var l = 0; l < friendsData.length; l++) {
+                delete friendsData[l].totalDiff;
+                subDiffArr = [];
+                totalDiffArr = [];
+            }
+        }
+        getFriendMatch();
     });
 
 };
